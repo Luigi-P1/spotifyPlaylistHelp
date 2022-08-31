@@ -19,13 +19,27 @@ def get_playlist_uri(playlist_link):
     return playlist_link.split("/")[-1].split("?")[0]
 
 
-def get_tracks():
-    # returns a list of songs in the playlist
+def get_only_songs():
+    # returns a list of songs in the playlist without the artists
+    tracks = []
+    playlist_uri = get_playlist_uri(PLAYLIST_LINK)
+
+    for track in SP.playlist_tracks(playlist_uri)["items"]:
+        track_name = track["track"]["name"]
+        result = track_name
+        tracks.append(result)
+
+    return tracks
+
+
+def get_songs_with_artist():
+    # returns a list of songs in the playlist with the artists
     tracks = []
     playlist_uri = get_playlist_uri(PLAYLIST_LINK)
     for track in SP.playlist_tracks(playlist_uri)["items"]:
         track_name = track["track"]["name"]
-        result = track_name
+        artist_name = track["track"]["artists"][0]["name"]
+        result = track_name + artist_name
         tracks.append(result)
 
     return tracks
@@ -66,10 +80,14 @@ def showDuplicates(duplicates: list):
         print("There are no duplicates")
 
 
-def checkPlaylistForDuplicates():
-    fileName = getPathOfText()
-    text = readTextFile(fileName)
-    duplicates = findDuplicates(text)
+def checkPlaylistForDuplicate_songs_regardless_of_artist():
+    songs = get_only_songs()
+    duplicates = findDuplicates(songs)
     showDuplicates(duplicates)
 
-print(get_tracks())
+
+def checkPlaylistForDuplicate_songs():
+    songs = get_songs_with_artist()
+    duplicates = findDuplicates(songs)
+    showDuplicates(duplicates)
+checkPlaylistForDuplicate_songs()
