@@ -1,17 +1,22 @@
-from os.path import exists
-
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import hiddenVariables
 
-CLIENT_ID = hiddenVariables.CLIENT_ID
-CLIENT_SECRET = hiddenVariables.CLIENT_SECRET
-PLAYLIST_LINK = "https://open.spotify.com/playlist/6zDGeRmorl0imFVn82U04f?si=35873ee5dc39423f"
 
-CLIENT_CREDENTIALS_MANAGER = SpotifyClientCredentials(
-    client_id=CLIENT_ID, client_secret=CLIENT_SECRET
-)
-SP = spotipy.Spotify(client_credentials_manager=CLIENT_CREDENTIALS_MANAGER)
+def connect_to_spotify():
+    CLIENT_ID = hiddenVariables.CLIENT_ID
+    CLIENT_SECRET = hiddenVariables.CLIENT_SECRET
+    PLAYLIST_LINK = "https://open.spotify.com/playlist/6zDGeRmorl0imFVn82U04f?si=35873ee5dc39423f"
+
+    CLIENT_CREDENTIALS_MANAGER = SpotifyClientCredentials(
+        client_id=CLIENT_ID, client_secret=CLIENT_SECRET
+    )
+    SP = spotipy.Spotify(client_credentials_manager=CLIENT_CREDENTIALS_MANAGER)
+    return SP
+
+def pick_a_playlist():
+    PLAYLIST_LINK = str(input("Please input the link to the spotify playlist"))
+    return PLAYLIST_LINK
 
 
 def get_playlist_uri(playlist_link):
@@ -19,7 +24,7 @@ def get_playlist_uri(playlist_link):
     return playlist_link.split("/")[-1].split("?")[0]
 
 
-def get_songs_with_artist():
+def get_songs_with_artist(PLAYLIST_LINK, SP):
     # returns a list of songs in the playlist with the artists
     songs = []
     playlist_uri = get_playlist_uri(PLAYLIST_LINK)
@@ -55,7 +60,9 @@ def showDuplicates(duplicates: list):
 
 
 def checkPlaylistForDuplicate_songs():
-    songs = get_songs_with_artist()
+    PLAYLIST_LINK = pick_a_playlist()
+    SP = connect_to_spotify()
+    songs = get_songs_with_artist(PLAYLIST_LINK, SP)
     duplicates = findDuplicates(songs)
     showDuplicates(duplicates)
 
