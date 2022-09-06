@@ -28,14 +28,15 @@ def get_playlist_uri(playlist_link):
 def get_songs_with_artist(PLAYLIST_LINK, SP):
     # returns a list of songs in the playlist with the artists
     songs = []
+    song_uri = []
     playlist_uri = get_playlist_uri(PLAYLIST_LINK)
     for track in SP.playlist_tracks(playlist_uri)["items"]:
         track_name = track["track"]["name"]
         artist_name = track["track"]["artists"][0]["name"]
         result = track_name + ' performed by ' + artist_name
         songs.append(result)
-
-    return songs
+        song_uri.append(track["track"]["uri"])
+    return songs, song_uri
 
 
 def findDuplicates(textList: list):
@@ -69,19 +70,63 @@ def showDuplicates(duplicates: list, no_of_duplicates: list):
         else:
             print("There are {0} duplicate songs in this playlist:".format(len(duplicates)))
             for i in range(0, len(duplicates)):
-                print("{0}, \tnumber of repeats in the playlist: {1} ".format(duplicates[i], no_of_duplicates[i]))
+                print("{0},".format(duplicates[i]).ljust(60) + "Number of repeats in the playlist: {0} "
+                      .format(no_of_duplicates[i]))
     else:
         print("There are no duplicates")
 
 
+def deleteDuplicatesOption():
+    print("If you would like to delete the duplicates then type Y or y.")
+    response = str(input())
+    if response in ["Y", "y"]:
+        return True
+    else:
+        return False
+
+
+def getIndicesOfDuplicates(songs: list, duplicates: list):
+    duplicateIndices = []
+    for i in duplicates:
+        indices = [j for j, x in enumerate(songs) if x == i]
+        indices.remove(indices[0])
+        for j in indices:
+            duplicateIndices.append(j)
+    return duplicateIndices
+
+
+def getDuplicatesUri(duplicateIndices: list, song_uri: list):
+    duplicateUri = []
+    for i in duplicateIndices:
+        uri = song_uri[i]
+        duplicateUri.append(uri)
+    return duplicateUri
+
+
+def deleteDuplicates(duplicateUri: list, PLAYLIST_LINK: str, SP: spotipy):
+
+    SP.playlist_remove_all_occurrences_of_items(playlist_id=PLAYLIST_LINK, items=duplicateUri)
+
+
+def deleteDuplicatesFromPlaylist(songs: list, duplicates: list, song_uri: list, PLAYLIST_LINK: str, SP: spotipy):
+    duplicateIndices = getIndicesOfDuplicates(songs, duplicates)
+    duplicateUri = getDuplicatesUri(duplicateIndices, song_uri)
+    deleteDuplicates(duplicateUri, PLAYLIST_LINK, SP)
+
+
 def checkPlaylistForDuplicate_songs():
-    #    PLAYLIST_LINK = pick_a_playlist()
+    #   PLAYLIST_LINK = pick_a_playlist()
     PLAYLIST_LINK = "https://open.spotify.com/playlist/6zDGeRmorl0imFVn82U04f?si=35873ee5dc39423f"
     SP = connect_to_spotify()
-    songs = get_songs_with_artist(PLAYLIST_LINK, SP)
+    songs, song_uri = get_songs_with_artist(PLAYLIST_LINK, SP)
     duplicates, no_of_duplicates = findDuplicates(songs)
     no_of_duplicates = get_correct_no_of_duplicates(no_of_duplicates)
+    print(len(song_uri))
     showDuplicates(duplicates, no_of_duplicates)
+    if duplicates is not None:
+        choice = deleteDuplicatesOption()
+        if choice:
+            deleteDuplicatesFromPlaylist(songs, duplicates, song_uri, PLAYLIST_LINK, SP)
 
 
 checkPlaylistForDuplicate_songs()
