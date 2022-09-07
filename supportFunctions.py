@@ -1,5 +1,6 @@
 import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy import CacheFileHandler
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 import hiddenVariables
 import math
 
@@ -7,11 +8,17 @@ import math
 def connect_to_spotify():
     CLIENT_ID = hiddenVariables.CLIENT_ID
     CLIENT_SECRET = hiddenVariables.CLIENT_SECRET
-
+    SPOTIFY_REDIRECT_URI = hiddenVariables.SPOTIFY_REDIRECT_URI
+    spotify_scope = hiddenVariables.spotify_scope
     CLIENT_CREDENTIALS_MANAGER = SpotifyClientCredentials(
         client_id=CLIENT_ID, client_secret=CLIENT_SECRET
     )
-    SP = spotipy.Spotify(client_credentials_manager=CLIENT_CREDENTIALS_MANAGER)
+    SP = spotipy.Spotify(auth_manager=SpotifyOAuth(open_browser=False, scope=spotify_scope,
+                                                   client_id=CLIENT_ID,
+                                                   client_secret=CLIENT_SECRET,
+                                                   redirect_uri=SPOTIFY_REDIRECT_URI,
+                                                   cache_handler=CacheFileHandler(username='Luigi.puma')))
+
     return SP
 
 
@@ -29,13 +36,16 @@ def get_songs_with_artist(PLAYLIST_LINK, SP):
     # returns a list of songs in the playlist with the artists
     songs = []
     song_uri = []
-    playlist_uri = get_playlist_uri(PLAYLIST_LINK)
-    for track in SP.playlist_tracks(playlist_uri)["items"]:
-        track_name = track["track"]["name"]
-        artist_name = track["track"]["artists"][0]["name"]
+    playlist_id = get_playlist_uri(PLAYLIST_LINK)
+    function_playlist = SP.playlist(playlist_id)
+    items = function_playlist['tracks']['items']
+    for i in range(0, len(items)):
+        song = items[i]['track']
+        track_name = song['name']
+        artist_name = song['artists'][0]['name']
         result = track_name + ' performed by ' + artist_name
         songs.append(result)
-        song_uri.append(track["track"]["uri"])
+        song_uri.append(song['uri'])
     return songs, song_uri
 
 
@@ -73,7 +83,7 @@ def showDuplicates(duplicates: list, no_of_duplicates: list):
                 print("{0},".format(duplicates[i]).ljust(60) + "Number of repeats in the playlist: {0} "
                       .format(no_of_duplicates[i]))
     else:
-        print("There are no duplicates")
+        print("There are no duplicate songs in the playlist.")
 
 
 def deleteDuplicatesOption():
@@ -104,7 +114,6 @@ def getDuplicatesUri(duplicateIndices: list, song_uri: list):
 
 
 def deleteDuplicates(duplicateUri: list, PLAYLIST_LINK: str, SP: spotipy):
-
     SP.playlist_remove_all_occurrences_of_items(playlist_id=PLAYLIST_LINK, items=duplicateUri)
 
 
@@ -121,9 +130,8 @@ def checkPlaylistForDuplicate_songs():
     songs, song_uri = get_songs_with_artist(PLAYLIST_LINK, SP)
     duplicates, no_of_duplicates = findDuplicates(songs)
     no_of_duplicates = get_correct_no_of_duplicates(no_of_duplicates)
-    print(len(song_uri))
     showDuplicates(duplicates, no_of_duplicates)
-    if duplicates is not None:
+    if len(duplicates) != 0:
         choice = deleteDuplicatesOption()
         if choice:
             deleteDuplicatesFromPlaylist(songs, duplicates, song_uri, PLAYLIST_LINK, SP)
