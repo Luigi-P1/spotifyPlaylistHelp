@@ -32,21 +32,28 @@ def get_playlist_uri(playlist_link):
     return playlist_link.split("/")[-1].split("?")[0]
 
 
-def get_songs_with_artist(PLAYLIST_LINK, SP):
-    # returns a list of songs in the playlist with the artists
-    songs = []
-    song_uri = []
-    playlist_id = get_playlist_uri(PLAYLIST_LINK)
+def getting_playlist_information(playlist_id, SP):
+    # returns a json of all the information in the playlist
     function_playlist = SP.playlist(playlist_id)
     items = function_playlist['tracks']['items']
+    return items
+
+
+def extracting_song_artist_uri(items, i):
+    song = items[i]['track']
+    track_name = song['name']
+    artist_name = song['artists'][0]['name']
+    result = track_name + ' performed by ' + artist_name
+    uri = song['uri']
+    return [result, uri]
+
+
+def get_songs_with_uri(items):
+    # returns a list of the songs with their artists and uri's
+    songs = []
     for i in range(0, len(items)):
-        song = items[i]['track']
-        track_name = song['name']
-        artist_name = song['artists'][0]['name']
-        result = track_name + ' performed by ' + artist_name
-        songs.append(result)
-        song_uri.append(song['uri'])
-    return songs, song_uri
+        songs.append(extracting_song_artist_uri(items, i))
+    return songs
 
 
 def findDuplicates(textList: list):
@@ -127,7 +134,9 @@ def checkPlaylistForDuplicate_songs():
     #   PLAYLIST_LINK = pick_a_playlist()
     PLAYLIST_LINK = "https://open.spotify.com/playlist/6zDGeRmorl0imFVn82U04f?si=35873ee5dc39423f"
     SP = connect_to_spotify()
-    songs, song_uri = get_songs_with_artist(PLAYLIST_LINK, SP)
+    playlist_id = get_playlist_uri(PLAYLIST_LINK)
+    getting_playlist_information(playlist_id, SP)
+    songs, song_uri = get_songs_with_uri(PLAYLIST_LINK, SP)
     duplicates, no_of_duplicates = findDuplicates(songs)
     no_of_duplicates = get_correct_no_of_duplicates(no_of_duplicates)
     showDuplicates(duplicates, no_of_duplicates)
