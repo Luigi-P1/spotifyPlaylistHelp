@@ -1,17 +1,20 @@
-def findDuplicates(Songs: list):
+def again(Songs, i, duplicates):
+    for j in range(i + 1, len(Songs)):
+        if Songs[i][0] == Songs[j][0]:
+            if Songs[j] not in duplicates:
+                duplicates.append(Songs[j])
+    return duplicates
+
+
+def findDuplicate(Songs: list):
     duplicates = []
     for i in range(0, len(Songs)):
-        for j in range(i + 1, len(Songs)):
-            if Songs[i][0] == Songs[j][0]:
-                if Songs[i] not in duplicates:
-                    duplicates.append(Songs[i])
-                if Songs[j] not in duplicates:
-                    duplicates.append(Songs[j])
+        duplicates = again(Songs, i, duplicates)
     return duplicates
 
 
 def numberOfDuplicateInPlaylist(songs: list, duplicateTitle: str):
-    noOfDuplicate = 0
+    noOfDuplicate = -1
     for song in songs:
         songTitle = song[0]
         if songTitle == duplicateTitle:
@@ -35,14 +38,17 @@ def showDuplicates(duplicates: list, no_of_duplicates: list):
     elif total_no_of_duplicates >= 2:
         print("There are {0} duplicate songs in this playlist:".format(len(duplicates)))
         for i in range(0, len(duplicates)):
-            print("{0},".format(duplicates[i]).ljust(60) + "Number of repeats in the playlist: {0} "
+            if no_of_duplicates[i] > 1 and duplicates[i][0] == duplicates[i-1][0]:
+                continue
+            print("{0},".format(duplicates[i][0]).ljust(60) + "Number of repeats in the playlist: {0} "
                   .format(no_of_duplicates[i]))
+
     else:
         print("There are no duplicate songs in the playlist.")
 
 
 def findDuplicates(Songs: list):
-    duplicates = findDuplicates(Songs)
+    duplicates = findDuplicate(Songs)
     numberOfEachDuplicate = findNumberOfEachDuplicate(duplicates, Songs)
     showDuplicates(duplicates, numberOfEachDuplicate)
     return duplicates

@@ -1,0 +1,2 @@
+import flowOfApp
+flowOfApp.duplicateSongs()
