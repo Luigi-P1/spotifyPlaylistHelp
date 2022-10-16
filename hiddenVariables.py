@@ -1,5 +1,5 @@
+SPOTIFY_SCOPE = 'playlist-read-collaborative,playlist-modify-public,playlist-modify-private'
 CLIENT_ID = ''
-CLIENT_SECRET = ""
+CLIENT_SECRET = ''
 SPOTIFY_REDIRECT_URI = ''
-SPOTIFY_SCOPE = ''
-USER_NAME = 'Luigi.puma'
+USER_NAME = ''

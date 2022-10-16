@@ -16,7 +16,9 @@ def getting_playlist_information(playlist_id: str, SP: Spotify):
     playlistInfo = SP.playlist(playlist_id)
     return playlistInfo
 
+
 def extracting_song_artist_uri(items, i):
+    # returns a single song, artist and uri of the song
     song = items[i]['track']
     track_name = song['name']
     artist_name = song['artists'][0]['name']
@@ -35,7 +37,7 @@ def getSongInfo(function_playlist):
     return songs
 
 
-def getPlaylistInfomation(SP):
+def getPlaylistInformation(SP):
     PLAYLIST_LINK = pick_a_playlist()
     playlistID = get_playlist_id(PLAYLIST_LINK)
     playlistData = getting_playlist_information(playlistID, SP)
