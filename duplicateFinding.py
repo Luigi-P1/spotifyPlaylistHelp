@@ -31,18 +31,20 @@ def findNumberOfEachDuplicate(duplicates: list, songs: list):
 
 
 def showDuplicates(duplicates: list, no_of_duplicates: list):
-    total_no_of_duplicates = sum(no_of_duplicates)
-    if total_no_of_duplicates == 1:
+    total_no_of_duplicates = 0
+    whatToSay = ""
+    if len(duplicates) == 1:
         print("There is 1 duplicate song in this playlist:\n{0} number of repeats in the playlist: {1}".
               format(duplicates[0], no_of_duplicates[0]))
-    elif total_no_of_duplicates >= 2:
-        print("There are {0} duplicate songs in this playlist:".format(len(duplicates)))
+    elif len(duplicates) >= 2:
         for i in range(0, len(duplicates)):
             if no_of_duplicates[i] > 1 and duplicates[i][0] == duplicates[i-1][0]:
                 continue
-            print("{0},".format(duplicates[i][0]).ljust(60) + "Number of repeats in the playlist: {0} "
+            whatToSay +=("{0},".format(duplicates[i][0]).ljust(60) + "Number of repeats in the playlist: {0} \n"
                   .format(no_of_duplicates[i]))
-
+            total_no_of_duplicates += no_of_duplicates[i]
+        print("There are {0} duplicate songs in this playlist:".format(total_no_of_duplicates))
+        print(whatToSay)
     else:
         print("There are no duplicate songs in the playlist.")
 

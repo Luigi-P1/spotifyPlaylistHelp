@@ -1,3 +1,5 @@
+from math import floor
+
 import spotipy
 
 
@@ -18,7 +20,13 @@ def deleteDuplicatesOption():
 
 
 def deleteDuplicates(songsUri: list, PLAYLIST_LINK: str, SP: spotipy):
-    SP.playlist_remove_all_occurrences_of_items(playlist_id=PLAYLIST_LINK, items=songsUri)
+    timesDeleteIsUsed = floor(len(songsUri)/50)
+    if timesDeleteIsUsed >0:
+        for i in range(1,timesDeleteIsUsed+1) :
+            songs = songsUri[(i-1)*50:i*50]
+            SP.playlist_remove_all_occurrences_of_items(playlist_id=PLAYLIST_LINK, items=songs)
+    songs = songsUri[timesDeleteIsUsed * 50:len(songsUri)]
+    SP.playlist_remove_all_occurrences_of_items(playlist_id=PLAYLIST_LINK, items=songs)
 
 
 def duplicateDeletion(duplicates: list, PLAYLIST_LINK: str, SP: spotipy):
